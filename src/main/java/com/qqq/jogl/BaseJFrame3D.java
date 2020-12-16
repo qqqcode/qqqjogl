@@ -12,25 +12,21 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
-/**
- * @author Johnson
- * 2020/12/15
- */
-public class BaseFrame implements GLEventListener {
+public class BaseJFrame3D implements GLEventListener {
+
     public static DisplayMode dm, dm_old;
     private GLU glu = new GLU();
     private float xrot,yrot,zrot;
     private int texture;
 
-    public void init(GLAutoDrawable drawable) {
-        final GL2 gl = drawable.getGL().getGL2();
-        gl.glShadeModel(GL2.GL_SMOOTH);
-        gl.glClearColor(0f, 0f, 0f, 0f);
-        gl.glClearDepth(1.0f);
-        gl.glEnable(GL2.GL_DEPTH_TEST);
-        gl.glDepthFunc(GL2.GL_LEQUAL);
+    public void init(GLAutoDrawable glAutoDrawable) {
+        final GL2 gl = glAutoDrawable.getGL().getGL2();
+        gl.glShadeModel( GL2.GL_SMOOTH );
+        gl.glClearColor( 0f, 0f, 0f, 0f );
+        gl.glClearDepth( 1.0f );
+        gl.glEnable( GL2.GL_DEPTH_TEST );
+        gl.glDepthFunc( GL2.GL_LEQUAL );
         gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST);
-        //
         gl.glEnable(GL2.GL_TEXTURE_2D);
         try{
             File im = new File("D:\\Document\\texture\\mjr01.jpg");
@@ -41,13 +37,12 @@ public class BaseFrame implements GLEventListener {
         }
     }
 
-    public void dispose(GLAutoDrawable drawable) {
+    public void dispose(GLAutoDrawable glAutoDrawable) {
 
     }
 
-    public void display(GLAutoDrawable drawable) {
-        // TODO Auto-generated method stub
-        final GL2 gl = drawable.getGL().getGL2();
+    public void display(GLAutoDrawable glAutoDrawable) {
+        final GL2 gl = glAutoDrawable.getGL().getGL2();
         gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
         gl.glLoadIdentity(); // Reset The View
         gl.glTranslatef(0f, 0f, -5.0f);
@@ -94,36 +89,35 @@ public class BaseFrame implements GLEventListener {
         zrot += .1f;
     }
 
-    public void reshape(GLAutoDrawable drawable, int x,  int y, int width, int height) {
-        final GL2 gl = drawable.getGL().getGL2();
-        if(height <= 0)
-        height = 1;
-        final float h = (float) width/(float) height;
-        gl.glViewport(0, 0, width, height);
-        gl.glMatrixMode(GL2.GL_PROJECTION);
+    public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {
+        final GL2 gl = glAutoDrawable.getGL().getGL2();
+        if( height <= 0 )
+            height = 1;
+        final float h = ( float ) width/( float ) height;
+        gl.glViewport( 0, 0, width, height );
+        gl.glMatrixMode( GL2.GL_PROJECTION );
         gl.glLoadIdentity();
-        glu.gluPerspective(45.0f, h, 1.0, 20.0);
-        gl.glMatrixMode(GL2.GL_MODELVIEW);
+        glu.gluPerspective( 45.0f, h, 1.0, 20.0 );
+        gl.glMatrixMode( GL2.GL_MODELVIEW );
         gl.glLoadIdentity();
     }
-    public static void main(String[] args) {
-        //getting the capabilities object of GL2 profile
-        final GLProfile profile = GLProfile.get(GLProfile.GL2);
-        GLCapabilities capabilities = new GLCapabilities(profile);
-        // The canvas
-        final GLCanvas glcanvas = new GLCanvas(capabilities);
-        BaseFrame l = new BaseFrame();
-        glcanvas.addGLEventListener(l);
-        glcanvas.setSize(400, 400);
-        //creating frame
-        final JFrame frame = new JFrame ("straight Line");
-        //adding canvas to frame
-        frame.getContentPane().add(glcanvas);
-        frame.setSize(frame.getContentPane().getPreferredSize());
-        frame.setVisible(true);
-        final FPSAnimator animator = new FPSAnimator(glcanvas, 300,true );
-        animator.start();
 
-        System.out.println("qqqtest");
+    public static void main(String[] args){
+        final GLProfile profile = GLProfile.get(GLProfile.GL2);
+        GLCapabilities glCapabilities = new GLCapabilities(profile);
+        final GLCanvas glCanvas = new GLCanvas(glCapabilities);
+
+        BaseJFrame3D jrame = new BaseJFrame3D();
+
+        glCanvas.addGLEventListener(jrame);
+        glCanvas.setSize(600,600);
+
+        final JFrame jFrame  = new JFrame("JFrame");
+        jFrame.getContentPane().add(glCanvas);
+        jFrame.setSize(jFrame.getContentPane().getPreferredSize());
+        jFrame.setVisible(true);
+
+        final FPSAnimator animator = new FPSAnimator(glCanvas, 300,true);
+        animator.start();
     }
 }
