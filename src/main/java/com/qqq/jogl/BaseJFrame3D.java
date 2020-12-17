@@ -21,17 +21,17 @@ public class BaseJFrame3D implements GLEventListener {
 
     public void init(GLAutoDrawable glAutoDrawable) {
         final GL2 gl = glAutoDrawable.getGL().getGL2();
-        gl.glShadeModel( GL2.GL_SMOOTH );
-        gl.glClearColor( 0f, 0f, 0f, 0f );
-        gl.glClearDepth( 1.0f );
-        gl.glEnable( GL2.GL_DEPTH_TEST );
-        gl.glDepthFunc( GL2.GL_LEQUAL );
-        gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST);
+        gl.glShadeModel(GL2.GL_SMOOTH);
+        gl.glClearColor(0f,0f,0f,0f);
+        gl.glClearDepth(1.0f);
+        gl.glEnable(GL2.GL_DEPTH_TEST);
+        gl.glDepthFunc(GL2.GL_LEQUAL);
+        gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT,GL2.GL_NICEST);
         gl.glEnable(GL2.GL_TEXTURE_2D);
         try{
             File im = new File("D:\\Document\\texture\\mjr01.jpg");
             Texture t = TextureIO.newTexture(im, true);
-            texture= t.getTextureObject(gl);
+            texture = t.getTextureObject(gl);
         }catch(IOException e){
             e.printStackTrace();
         }
