@@ -16,6 +16,13 @@ import java.awt.event.WindowEvent;
  */
 public class LeptospiraGLEventListener extends JFrame implements GLEventListener,Runnable {
 
+    public static void main(String[] args){
+        LeptospiraGLEventListener leptospiraGLEventListener = new LeptospiraGLEventListener();
+        leptospiraGLEventListener.setTitle("111");
+        leptospiraGLEventListener.setSize(800,600);
+        leptospiraGLEventListener.setVisible(true);
+    }
+
     GL2 gl;
     GLCanvas glCanvas;
     GLCapabilities glCapabilities;
@@ -23,9 +30,7 @@ public class LeptospiraGLEventListener extends JFrame implements GLEventListener
 
     FPSAnimator animator;
 
-    double linelong = 0;
-    double width = 2;
-    double height = 2;
+
 
     Thread myThread = new Thread(this);
 
@@ -58,6 +63,10 @@ public class LeptospiraGLEventListener extends JFrame implements GLEventListener
 
     }
 
+    double linelong = 0;
+    double width = 2;
+    double height = 2;
+
     public void display(GLAutoDrawable glAutoDrawable){
         double x, y;
         float red = 1.0f;
@@ -72,7 +81,7 @@ public class LeptospiraGLEventListener extends JFrame implements GLEventListener
             gl.glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
         } else if (linelong == 60) {
             gl.glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
-        } else if (linelong == 00) {
+        } else if (linelong == 0) {
             gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         }
 
@@ -82,7 +91,6 @@ public class LeptospiraGLEventListener extends JFrame implements GLEventListener
             linelong += 1;
         }
         gl.glBegin(GL.GL_LINE_STRIP);
-
         if (linelong < 60) {
             for (double i = 0; i < linelong; i += 0.1) {
                 x = Math.sin(i) * i * width;
@@ -116,6 +124,6 @@ public class LeptospiraGLEventListener extends JFrame implements GLEventListener
     }
 
     public void run() {
-
+        animator.start();
     }
 }
