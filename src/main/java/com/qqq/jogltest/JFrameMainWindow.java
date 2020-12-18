@@ -12,10 +12,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 public class JFrameMainWindow extends JFrame {
-    CubeRobot listener=new CubeRobot();
-    static FPSAnimator animator=null;
+    VerTextShaderTest listener=new VerTextShaderTest();
+    private static FPSAnimator animator=null;
     public JFrameMainWindow() throws HeadlessException {
-        super("画机器人:活用长方体");
+        super("qqq");
         setSize(800,600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         GLCapabilities glcaps=new GLCapabilities(GLProfile.get(GLProfile.GL2));
@@ -28,7 +28,7 @@ public class JFrameMainWindow extends JFrame {
 
         centerWindow(this);
     }
-    private void centerWindow(Component frame) { // 居中窗体
+    private void centerWindow(Component frame) {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension frameSize = frame.getSize();
         if (frameSize.width > screenSize.width)
@@ -65,26 +65,26 @@ public class JFrameMainWindow extends JFrame {
         public void keyPressed(KeyEvent e) {
             //处理键盘事件
             System.out.println(e.getKeyCode());
-            if (e.getKeyCode() == 37) {
-                listener.xSpeed = -1.0f;
-            }
-
-            if (e.getKeyCode() == 38) {
-                listener.zSpeed = -1.0f;
-            }
-
-            if (e.getKeyCode() == 39) {
-                listener.xSpeed = 1.0f;
-            }
-
-            if (e.getKeyCode() == 40) {
-                listener.zSpeed = 1.0f;
-            }
+//            if (e.getKeyCode() == 37) {
+//                listener.xSpeed = -1.0f;
+//            }
+//
+//            if (e.getKeyCode() == 38) {
+//                listener.zSpeed = -1.0f;
+//            }
+//
+//            if (e.getKeyCode() == 39) {
+//                listener.xSpeed = 1.0f;
+//            }
+//
+//            if (e.getKeyCode() == 40) {
+//                listener.zSpeed = 1.0f;
+//            }
         }
 
         public void keyReleased(KeyEvent e) {
-            listener.zSpeed = 0.0f;
-            listener.xSpeed = 0.0f;
+//            listener.zSpeed = 0.0f;
+//            listener.xSpeed = 0.0f;
         }
     }
 

@@ -45,8 +45,8 @@ public class GLRender extends JFrame implements GLEventListener, KeyListener ,Ru
     }
 
     private void centerWindow(Component frame) { // 居中窗体
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension frameSize = frame.getSize();
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         if (frameSize.width > screenSize.width)
             frameSize.width = screenSize.width;
         if (frameSize.height > screenSize.height)
