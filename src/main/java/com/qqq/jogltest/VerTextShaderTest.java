@@ -4,7 +4,12 @@ import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
+import com.qqq.utils.JoglUtils;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.FloatBuffer;
 
 
@@ -15,7 +20,7 @@ import java.nio.FloatBuffer;
 public class VerTextShaderTest implements GLEventListener {
 
     private String vertexShaderSource =
-            "#version 330 core \n"+
+            "#version 410 core \n"+
                     "layout (location = 0) in vec3 position;\n"+
                     "layout (location = 1) in vec3 color; \n"+
                     "out vec3 ourColor; \n"+
@@ -34,7 +39,9 @@ public class VerTextShaderTest implements GLEventListener {
             "}       \n";
 
     private int program;
+    private int shaderColor;
     private int shaderPosition;
+    private int[] shaderLocation = new int[16];
 
     private final int[] vao = new int[1];
     private final int[] vbo = new int[1];
@@ -50,16 +57,19 @@ public class VerTextShaderTest implements GLEventListener {
 
         gl.glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
         gl.glClearDepthf(1.0f);
-        gl.glEnable(GL4.GL_CULL_FACE);
-        gl.glCullFace(GL4.GL_BACK);
-        gl.glFrontFace(GL4.GL_CCW);
+        gl.glEnable(GL4.GL_CULL_FACE);//清除背面绘制
+        gl.glCullFace(GL4.GL_BACK);//清除背面
+        gl.glFrontFace(GL4.GL_CW);//顺时针绘制为正
         gl.glEnable(GL4.GL_DEPTH_TEST);
         gl.glDepthFunc(GL4.GL_LEQUAL);
 
-        this.program = createProgram(gl);
+        this.program = JoglUtils.createProgram(gl,"D:\\qqqworkspaces\\qqqjogl\\src\\main\\resources\\shader.vs","D:\\qqqworkspaces\\qqqjogl\\src\\main\\resources\\shader.frag");
         this.shaderPosition = gl.glGetAttribLocation(this.program, "position");
+        shaderLocation[0] = this.shaderPosition;
+        this.shaderColor = gl.glGetAttribLocation(this.program,"color");
+        shaderLocation[1] = this.shaderColor;
         // Create the mesh
-        createBuffer(gl, shaderPosition, two_triangles, 3);
+        createBuffer(gl, shaderLocation, two_triangles, 3);
     }
 
     public void dispose(GLAutoDrawable glAutoDrawable) {
@@ -87,52 +97,25 @@ public class VerTextShaderTest implements GLEventListener {
         gl.glViewport(x, y, width, height);
     }
 
-    private int createProgram(GL4 gl) {
-        ShaderCode vertexShaderCode = compileShader(gl,vertexShaderSource,GL4.GL_VERTEX_SHADER);
-        ShaderCode fragmentShaderCode = compileShader(gl,fragmentShaderSource,GL4.GL_FRAGMENT_SHADER);
-        ShaderProgram program = linkShader(gl,vertexShaderCode,fragmentShaderCode);
-        return program.program();
-    }
-
-    private ShaderCode compileShader(final GL4 gl,final String source,final int shaderType){
-        String[][] sources = new String[1][1];
-        sources[0] = new String[]{source};
-        ShaderCode shaderCode = new ShaderCode(shaderType, sources.length, sources);
-        boolean compiled = shaderCode.compile(gl, System.err);
-        if (!compiled){
-            System.err.println("Unable to compile " + source);
-            System.exit(1);
-        }
-        return shaderCode;
-    }
-
-    private ShaderProgram linkShader(final GL4 gl, final ShaderCode vertexShader, final ShaderCode fragmentShader) throws GLException {
-        ShaderProgram program = new ShaderProgram();
-        program.init(gl);
-        program.add(vertexShader);
-        program.add(fragmentShader);
-        program.link(gl, System.out);
-        final boolean validateProgram = program.validateProgram(gl, System.out);
-        if (!validateProgram) {
-            System.err.println("Unable to link shader");
-            System.exit(1);
-        }
-        return program;
-    }
-
-    private void createBuffer(final GL4 gl, final int shaderAttribute, float[] values, final int valuesPerVertex) {
+    private void createBuffer(final GL4 gl, final int[] shaderLocation, float[] values, final int valuesPerVertex) {
 
         gl.glGenVertexArrays(this.vao.length, this.vao, 0);
         gl.glBindVertexArray(this.vao[0]);
 
+        //创建定点缓冲对象
         gl.glGenBuffers(this.vbo.length, this.vbo, 0);
         gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, this.vbo[0]);
-
         FloatBuffer fbVertices = Buffers.newDirectFloatBuffer(values);
         final int bufferSizeInBytes = values.length * Buffers.SIZEOF_FLOAT;
         gl.glBufferData(GL4.GL_ARRAY_BUFFER, bufferSizeInBytes, fbVertices, GL4.GL_STATIC_DRAW);
 
 
-        gl.glVertexAttribPointer(shaderAttribute, valuesPerVertex, GL4.GL_FLOAT, false, 0, 0);
+        //gl.glVertexAttribPointer(shaderAttribute, valuesPerVertex, GL4.GL_FLOAT, false, 0, 0);
+        // Position attribute
+        gl.glVertexAttribPointer(shaderLocation[0], valuesPerVertex, GL4.GL_FLOAT,false,6*Buffers.SIZEOF_FLOAT,0*Buffers.SIZEOF_FLOAT);
+        gl.glEnableVertexAttribArray(0);
+        // Color attribute
+        gl.glVertexAttribPointer(shaderLocation[1], valuesPerVertex, GL4.GL_FLOAT,false,6*Buffers.SIZEOF_FLOAT,3*Buffers.SIZEOF_FLOAT);
+        gl.glEnableVertexAttribArray(1);
     }
 }
