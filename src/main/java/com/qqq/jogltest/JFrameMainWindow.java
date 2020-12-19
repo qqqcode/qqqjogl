@@ -12,7 +12,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 public class JFrameMainWindow extends JFrame {
-    VerTextShaderTest listener=new VerTextShaderTest();
+    Texturetest listener=new Texturetest();
     private static FPSAnimator animator=null;
     public JFrameMainWindow() throws HeadlessException {
         super("qqq");

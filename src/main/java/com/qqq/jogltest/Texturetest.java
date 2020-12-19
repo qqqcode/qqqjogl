@@ -1,19 +1,14 @@
 package com.qqq.jogltest;
 
 import com.jogamp.common.nio.Buffers;
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GL4;
-import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLEventListener;
-import com.jogamp.opengl.util.GLBuffers;
+import com.jogamp.opengl.*;
+import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.qqq.utils.JoglUtils;
-import com.sun.prism.image.Coords;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -23,6 +18,7 @@ import java.nio.IntBuffer;
  */
 public class Texturetest  implements GLEventListener {
 
+    private final GLU glu = new GLU();
     private int program;
     private int shaderColor;
     private int shaderPosition;
@@ -31,9 +27,8 @@ public class Texturetest  implements GLEventListener {
 
     private final int[] vao = new int[1];
     private final int[] vbo = new int[1];
-    private final int[] veo = new int[1];
+    private final int[] ebo = new int[1];
     private final int[] texture = new int[1];
-    private int texture2D;
 
     float[] vertices = {
             // Positions          // Colors           // Texture Coords
@@ -60,7 +55,7 @@ public class Texturetest  implements GLEventListener {
         gl.glDepthFunc(GL4.GL_LEQUAL);
         gl.glEnable(GL4.GL_TEXTURE_2D);
 
-        this.program = JoglUtils.createProgram(gl,"D:\\qqqworkspaces\\qqqjogl\\src\\main\\resources\\shader.vs","D:\\qqqworkspaces\\qqqjogl\\src\\main\\resources\\shader.frag");
+        this.program = JoglUtils.createProgram(gl,"D:\\Document\\texture\\textureShader.vs","D:\\Document\\texture\\textureShader.frag");
 
         this.shaderPosition = gl.glGetAttribLocation(this.program, "position");
         shaderLocation[0] = this.shaderPosition;
@@ -76,6 +71,7 @@ public class Texturetest  implements GLEventListener {
         GL4 gl = glAutoDrawable.getGL().getGL4();
         gl.glDeleteVertexArrays(vao.length, vao, 0);
         gl.glDeleteBuffers(vbo.length,vbo,0);
+        gl.glDeleteBuffers(ebo.length,ebo,0);
         gl.glDeleteProgram(program);
     }
 
@@ -85,11 +81,14 @@ public class Texturetest  implements GLEventListener {
         gl.glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         gl.glClear(GL4.GL_COLOR_BUFFER_BIT | GL4.GL_DEPTH_BUFFER_BIT);
 
+        gl.glBindTexture(GL4.GL_TEXTURE_2D, texture[0]);
+
+        // Activate shader
         gl.glUseProgram(this.program);
+        // Draw container
         gl.glBindVertexArray(this.vao[0]);
-        gl.glEnableVertexAttribArray(this.shaderPosition);
-        //gl.glDrawArrays(GL4.GL_TRIANGLES, 0, 6);
-        gl.glDrawArrays(GL4.GL_TRIANGLES,0,3);
+        gl.glDrawElements(GL4.GL_TRIANGLES, 6, GL4.GL_UNSIGNED_INT, 0);
+        gl.glBindVertexArray(0);
     }
 
     public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {
@@ -109,8 +108,8 @@ public class Texturetest  implements GLEventListener {
         int bufferSizeInBytes = values.length * Buffers.SIZEOF_FLOAT;
         gl.glBufferData(GL4.GL_ARRAY_BUFFER, bufferSizeInBytes, fbVertices, GL4.GL_STATIC_DRAW);
 
-        gl.glGenBuffers(this.veo.length,this.veo,0);
-        gl.glBindBuffer(GL4.GL_ELEMENT_ARRAY_BUFFER,this.veo[0]);
+        gl.glGenBuffers(this.ebo.length,this.ebo,0);
+        gl.glBindBuffer(GL4.GL_ELEMENT_ARRAY_BUFFER,this.ebo[0]);
         IntBuffer ibVertices = Buffers.newDirectIntBuffer(indices);
         bufferSizeInBytes = indices.length * Buffers.SIZEOF_INT;
         gl.glBufferData(GL4.GL_ELEMENT_ARRAY_BUFFER, bufferSizeInBytes, ibVertices, GL4.GL_STATIC_DRAW);
@@ -128,25 +127,21 @@ public class Texturetest  implements GLEventListener {
         gl.glBindVertexArray(0);
 
 
+        //加载和创建纹理
         gl.glGenTextures(this.texture.length,this.texture,0);
+        //所有即将到来的GL_TEXTURE_2D操作现在对该纹理对象有效
         gl.glBindTexture(GL4.GL_TEXTURE_2D,this.texture[0]);
 
-//        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_WRAP_S, GL4.GL_REPEAT);	// Set texture wrapping to GL_REPEAT (usually basic wrapping method)
-//        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_WRAP_T, GL4.GL_REPEAT);
-//        // Set texture filtering parameters
-//        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
-//        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
-        // Load image, create texture and generate mipmaps
-        try{
-            File im = new File("E:\\office\\boy.jpg");
-            Texture t = TextureIO.newTexture(im, true);
-            texture2D = t.getTextureObject(gl);
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-//        ByteBuffer byteBuffer = GLBuffers.newDirectByteBuffer(textureData);
-//        gl.glTexImage2D(GL4.GL_TEXTURE_2D, 0, GL4.GL_RGB, 300, 300, 0, GL4.GL_RGB, GL4.GL_UNSIGNED_BYTE, byteBuffer);
-//        gl.glGenerateMipmap(GL4.GL_TEXTURE_2D);
-        gl.glBindTexture(GL4.GL_TEXTURE_2D, texture2D); // Unbind texture when done, so we won't accidentily mess up our texture.
+        Texture texture = JoglUtils.createTexture("D:\\Document\\texture\\mjr01.jpg");
+        this.texture[0] = texture.getTextureObject(gl);
+
+        //纹理环绕方式
+        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_WRAP_S, GL4.GL_REPEAT);	// Set texture wrapping to GL_REPEAT (usually basic wrapping method)
+        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_WRAP_T, GL4.GL_REPEAT);
+        //纹理过滤
+        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
+        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
+        //完成后解除纹理绑定，这样我们就不会意外地弄乱纹理。
+        gl.glBindTexture(GL4.GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
     }
 }

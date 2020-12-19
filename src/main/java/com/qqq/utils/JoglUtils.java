@@ -4,11 +4,10 @@ import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLException;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
+import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.TextureIO;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 public class JoglUtils {
 
@@ -56,5 +55,16 @@ public class JoglUtils {
             System.exit(1);
         }
         return program;
+    }
+
+    public static Texture createTexture(String texturePath){
+        File im = new File(texturePath);
+        Texture t = null;
+        try {
+            t = TextureIO.newTexture(im, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return t;
     }
 }
