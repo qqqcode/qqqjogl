@@ -4,11 +4,8 @@ import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.texture.Texture;
-import com.jogamp.opengl.util.texture.TextureIO;
 import com.qqq.utils.JoglUtils;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -29,6 +26,7 @@ public class Texturetest  implements GLEventListener {
     private final int[] vbo = new int[1];
     private final int[] ebo = new int[1];
     private final int[] texture = new int[1];
+    private final int[] texture1 = new int[1];
 
     float[] vertices = {
             // Positions          // Colors           // Texture Coords
@@ -77,11 +75,17 @@ public class Texturetest  implements GLEventListener {
 
     public void display(GLAutoDrawable glAutoDrawable) {
         GL4 gl =glAutoDrawable.getGL().getGL4();
-        gl.glBindFramebuffer(GL4.GL_DRAW_FRAMEBUFFER, 0);
+        //gl.glBindFramebuffer(GL4.GL_DRAW_FRAMEBUFFER, 0);
         gl.glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         gl.glClear(GL4.GL_COLOR_BUFFER_BIT | GL4.GL_DEPTH_BUFFER_BIT);
 
+        //gl.glBindTexture(GL4.GL_TEXTURE_2D, texture[0]);
+        gl.glActiveTexture(GL4.GL_TEXTURE0);
         gl.glBindTexture(GL4.GL_TEXTURE_2D, texture[0]);
+        gl.glUniform1i(gl.glGetUniformLocation(this.program, "ourTexture1"), 0);
+        gl.glActiveTexture(GL4.GL_TEXTURE1);
+        gl.glBindTexture(GL4.GL_TEXTURE_2D, texture1[0]);
+        gl.glUniform1i(gl.glGetUniformLocation(this.program, "ourTexture2"), 1);
 
         // Activate shader
         gl.glUseProgram(this.program);
@@ -115,7 +119,7 @@ public class Texturetest  implements GLEventListener {
         gl.glBufferData(GL4.GL_ELEMENT_ARRAY_BUFFER, bufferSizeInBytes, ibVertices, GL4.GL_STATIC_DRAW);
 
         // Position attribute
-        gl.glVertexAttribPointer(shaderLocation[0], 3, GL4.GL_FLOAT,false,8*Buffers.SIZEOF_FLOAT,0*Buffers.SIZEOF_FLOAT);
+        gl.glVertexAttribPointer(shaderLocation[0], 3, GL4.GL_FLOAT,false,8*Buffers.SIZEOF_FLOAT,0);
         gl.glEnableVertexAttribArray(0);
         // Color attribute
         gl.glVertexAttribPointer(shaderLocation[1], 3, GL4.GL_FLOAT,false,8*Buffers.SIZEOF_FLOAT,3*Buffers.SIZEOF_FLOAT);
@@ -132,16 +136,34 @@ public class Texturetest  implements GLEventListener {
         //所有即将到来的GL_TEXTURE_2D操作现在对该纹理对象有效
         gl.glBindTexture(GL4.GL_TEXTURE_2D,this.texture[0]);
 
-        Texture texture = JoglUtils.createTexture("D:\\Document\\texture\\mjr01.jpg");
-        this.texture[0] = texture.getTextureObject(gl);
-
         //纹理环绕方式
         gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_WRAP_S, GL4.GL_REPEAT);	// Set texture wrapping to GL_REPEAT (usually basic wrapping method)
         gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_WRAP_T, GL4.GL_REPEAT);
         //纹理过滤
         gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
         gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
+
+        Texture texture1 = JoglUtils.createTexture("D:\\Document\\texture\\container.jpg");
+        this.texture[0] = texture1.getTextureObject(gl);
+        gl.glGenerateTextureMipmap(GL4.GL_TEXTURE_2D);
         //完成后解除纹理绑定，这样我们就不会意外地弄乱纹理。
         gl.glBindTexture(GL4.GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
+
+
+
+        gl.glGenTextures(this.texture1.length,this.texture1,0);
+        gl.glBindTexture(GL4.GL_TEXTURE_2D,this.texture1[0]);
+
+        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_WRAP_S, GL4.GL_REPEAT);
+        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_WRAP_T, GL4.GL_REPEAT);
+        // Set texture filtering
+        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
+        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
+
+        Texture texture2 = JoglUtils.createTexture("D:\\Document\\texture\\awesomeface.png");
+        this.texture1[0] = texture2.getTextureObject(gl);
+        gl.glBindTexture(GL4.GL_TEXTURE_2D, 0);
+        gl.glGenerateTextureMipmap(GL4.GL_TEXTURE_2D);
+
     }
 }
