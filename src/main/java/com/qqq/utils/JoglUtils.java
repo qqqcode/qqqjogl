@@ -11,6 +11,34 @@ import java.io.*;
 
 public class JoglUtils {
 
+    public static void clearColorAndDepth(final GL4 gl,float r, float g, float b, float a,float depth){
+        gl.glClearColor(r, g, b, a);
+        gl.glClearDepthf(depth);
+        gl.glClear(GL4.GL_COLOR_BUFFER_BIT | GL4.GL_DEPTH_BUFFER_BIT);
+    }
+
+    /**
+     *
+     * @param gl
+     * @param i1 清除面（背面或正面）：GL_BACK or GL_FRONT
+     * @param i2 指定面 GL_CCW 逆时针绘制为正面， GL_CW顺时针绘制为正面
+     */
+    public static void enableCullFace(final GL4 gl,int i1,int i2){
+        gl.glEnable(GL4.GL_CULL_FACE);//清除背面绘制
+        gl.glCullFace(i1);//清除背面
+        gl.glFrontFace(i2);//顺时针绘制为正
+    }
+
+    /**
+     *
+     * @param gl
+     * @param i1 深度测试函数
+     */
+    public static void enableDepthtest(final GL4 gl,int i1){
+        gl.glEnable(GL4.GL_DEPTH_TEST);//开启深度测试
+        gl.glDepthFunc(i1);
+    }
+
     public static int createProgram(GL4 gl,String vsPath,String fragPath) {
         ShaderCode vertexShaderCode = compileShader(gl,vsPath,GL4.GL_VERTEX_SHADER);
         ShaderCode fragmentShaderCode = compileShader(gl,fragPath,GL4.GL_FRAGMENT_SHADER);
@@ -55,6 +83,30 @@ public class JoglUtils {
             System.exit(1);
         }
         return program;
+    }
+
+    public static int createVertexArrays(final int[] vao,final GL4 gl,final int[] shaderLocation, float[] values,int[] indices){
+        return 1;
+    }
+
+    public static int[] createGlTexture(final GL4 gl,String texturePath,int[] texture,int i1,int i2,int i3,int i4){
+        gl.glGenTextures(texture.length,texture,0);
+        //绑定
+        gl.glBindTexture(GL4.GL_TEXTURE_2D,texture[0]);
+        //纹理环绕方式
+        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_WRAP_S, i1);
+        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_WRAP_T, i2);
+        //纹理过滤
+        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, i3);
+        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, i4);
+        //根据路径导出一个纹理
+        Texture textureIO = createTexture(texturePath);
+        texture[0] = textureIO.getTextureObject(gl);
+        //
+        gl.glGenerateTextureMipmap(GL4.GL_TEXTURE_2D);
+        //解绑
+        gl.glBindTexture(GL4.GL_TEXTURE_2D, 0);
+        return texture;
     }
 
     public static Texture createTexture(String texturePath){

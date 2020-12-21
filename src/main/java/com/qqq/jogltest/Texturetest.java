@@ -3,11 +3,13 @@ package com.qqq.jogltest;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.glu.GLU;
-import com.jogamp.opengl.util.texture.Texture;
 import com.qqq.utils.JoglUtils;
+import glm.mat._4.Mat4;
+import glm.vec._3.Vec3;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+
 
 /**
  * @author Johnson
@@ -27,6 +29,7 @@ public class Texturetest  implements GLEventListener {
     private final int[] ebo = new int[1];
     private final int[] texture = new int[1];
     private final int[] texture1 = new int[1];
+    private long createTime;
 
     float[] vertices = {
             // Positions          // Colors           // Texture Coords
@@ -51,9 +54,11 @@ public class Texturetest  implements GLEventListener {
         gl.glFrontFace(GL4.GL_CW);//顺时针绘制为正
         gl.glEnable(GL4.GL_DEPTH_TEST);
         gl.glDepthFunc(GL4.GL_LEQUAL);
-        gl.glEnable(GL4.GL_TEXTURE_2D);
+        //gl.glEnable(GL4.GL_TEXTURE_2D);
 
-        this.program = JoglUtils.createProgram(gl,"D:\\Document\\texture\\textureShader.vs","D:\\Document\\texture\\textureShader.frag");
+        createTime = System.currentTimeMillis();
+
+        this.program = JoglUtils.createProgram(gl,"D:\\qqqworkspaces\\qqqjogl\\src\\main\\resources\\textureShader.vs","D:\\qqqworkspaces\\qqqjogl\\src\\main\\resources\\textureShader.frag");
 
         this.shaderPosition = gl.glGetAttribLocation(this.program, "position");
         shaderLocation[0] = this.shaderPosition;
@@ -79,16 +84,24 @@ public class Texturetest  implements GLEventListener {
         gl.glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         gl.glClear(GL4.GL_COLOR_BUFFER_BIT | GL4.GL_DEPTH_BUFFER_BIT);
 
-        //gl.glBindTexture(GL4.GL_TEXTURE_2D, texture[0]);
         gl.glActiveTexture(GL4.GL_TEXTURE0);
         gl.glBindTexture(GL4.GL_TEXTURE_2D, texture[0]);
         gl.glUniform1i(gl.glGetUniformLocation(this.program, "ourTexture1"), 0);
         gl.glActiveTexture(GL4.GL_TEXTURE1);
         gl.glBindTexture(GL4.GL_TEXTURE_2D, texture1[0]);
         gl.glUniform1i(gl.glGetUniformLocation(this.program, "ourTexture2"), 1);
-
         // Activate shader
         gl.glUseProgram(this.program);
+
+        Mat4 transform = new Mat4();
+        transform.translate(new Vec3(0.5f, -0.5f, 0.0f));
+        transform.rotate(10.0f*(System.currentTimeMillis() - createTime),new Vec3(0.0f, 0.0f, 1.0f));
+
+        //Mat4 projection = glm.perspective_(45.0f, 4.0f/3.0f, 0.1f, 100.0f);
+        int transformLoc = gl.glGetUniformLocation(this.program, "transform");
+        FloatBuffer floatBuffer = Buffers.newDirectFloatBuffer(transform.toFa_());
+        gl.glUniformMatrix4fv(transformLoc, 1, false,floatBuffer);
+
         // Draw container
         gl.glBindVertexArray(this.vao[0]);
         gl.glDrawElements(GL4.GL_TRIANGLES, 6, GL4.GL_UNSIGNED_INT, 0);
@@ -132,38 +145,9 @@ public class Texturetest  implements GLEventListener {
 
 
         //加载和创建纹理
-        gl.glGenTextures(this.texture.length,this.texture,0);
-        //所有即将到来的GL_TEXTURE_2D操作现在对该纹理对象有效
-        gl.glBindTexture(GL4.GL_TEXTURE_2D,this.texture[0]);
+        JoglUtils.createGlTexture(gl,"D:\\qqqworkspaces\\qqqjogl\\src\\main\\resources\\container.jpg",texture,GL4.GL_REPEAT,GL4.GL_REPEAT,GL4.GL_LINEAR,GL4.GL_LINEAR);
 
-        //纹理环绕方式
-        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_WRAP_S, GL4.GL_REPEAT);	// Set texture wrapping to GL_REPEAT (usually basic wrapping method)
-        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_WRAP_T, GL4.GL_REPEAT);
-        //纹理过滤
-        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
-        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
-
-        Texture texture1 = JoglUtils.createTexture("D:\\Document\\texture\\container.jpg");
-        this.texture[0] = texture1.getTextureObject(gl);
-        gl.glGenerateTextureMipmap(GL4.GL_TEXTURE_2D);
-        //完成后解除纹理绑定，这样我们就不会意外地弄乱纹理。
-        gl.glBindTexture(GL4.GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
-
-
-
-        gl.glGenTextures(this.texture1.length,this.texture1,0);
-        gl.glBindTexture(GL4.GL_TEXTURE_2D,this.texture1[0]);
-
-        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_WRAP_S, GL4.GL_REPEAT);
-        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_WRAP_T, GL4.GL_REPEAT);
-        // Set texture filtering
-        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
-        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
-
-        Texture texture2 = JoglUtils.createTexture("D:\\Document\\texture\\awesomeface.png");
-        this.texture1[0] = texture2.getTextureObject(gl);
-        gl.glBindTexture(GL4.GL_TEXTURE_2D, 0);
-        gl.glGenerateTextureMipmap(GL4.GL_TEXTURE_2D);
+        JoglUtils.createGlTexture(gl,"D:\\qqqworkspaces\\qqqjogl\\src\\main\\resources\\awesomeface.png",texture1,GL4.GL_REPEAT,GL4.GL_REPEAT,GL4.GL_LINEAR,GL4.GL_LINEAR);
 
     }
 }
