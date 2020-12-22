@@ -29,6 +29,7 @@ public class CoordinateSystems implements GLEventListener {
     private final int[] texture = new int[1];
     private final int[] texture1 = new int[1];
 
+    long time;
     float[] vertices = {
             // Positions          // Texture Coords
             0.5f,  0.5f, 0.0f,   1.0f, 1.0f, // Top Right
@@ -48,8 +49,9 @@ public class CoordinateSystems implements GLEventListener {
         JoglUtils.enableCullFace(gl,GL4.GL_BACK,GL4.GL_CW);//清除背面绘制 清除背面顺时针绘制为正
         JoglUtils.enableDepthtest(gl,GL4.GL_LEQUAL);//深度测试函数为GL_LEQUAL
         //创建着色器程序
-        this.program = JoglUtils.createProgram(gl,"D:\\qqqworkspaces\\qqqjogl\\src\\main\\resources\\coordinateShader.vs","D:\\qqqworkspaces\\qqqjogl\\src\\main\\resources\\coordinateShader.frag");
+        this.program = JoglUtils.createProgram(gl,"D:\\Document\\texture\\coordinateShader.vs","D:\\Document\\texture\\coordinateShader.frag");
 
+        time = System.currentTimeMillis();
         int position = gl.glGetAttribLocation(this.program, "position");
         shaderLocation[0] = position;
         int texCoord = gl.glGetAttribLocation(this.program,"texCoord");
@@ -82,9 +84,9 @@ public class CoordinateSystems implements GLEventListener {
         Mat4 model = new Mat4();
         Mat4 view = new Mat4();
         Mat4 projection = new Mat4();
-        model.rotate(-55.0f, new Vec3(1.0f, 0.0f, 0.0f));
-        view.translate(new Vec3(0.0f, 0.0f, -3.0f));
-        Glm.perspective(45.0f, (float) 800/600, 0.1f, 100.0f,projection);
+        model.rotate(-50.0f , new Vec3(1.0f, 0.0f, 0.0f));
+        view.translate(new Vec3(0.0f, 0.0f, -0.8f));
+        projection.perspective(45.0f, 1.0f, 0.1f, 100.0f);
 
         int modelLoc = gl.glGetUniformLocation(this.program, "model");
         int viewLoc = gl.glGetUniformLocation(this.program, "view");
@@ -111,11 +113,17 @@ public class CoordinateSystems implements GLEventListener {
         gl.glBindVertexArray(this.vao[0]);
 
         //创建定点缓冲对象
+        gl.glGenBuffers(this.vbo.length, this.vbo, 0);
+        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, this.vbo[0]);
+        int bufferSizeInBytes = values.length * Buffers.SIZEOF_FLOAT;
         FloatBuffer fbVertices = Buffers.newDirectFloatBuffer(values);
-        createGenBuffers(gl,this.vbo,GL4.GL_ARRAY_BUFFER,fbVertices);
+        gl.glBufferData(GL4.GL_ARRAY_BUFFER, bufferSizeInBytes, fbVertices, GL4.GL_STATIC_DRAW);
 
+        gl.glGenBuffers(this.ebo.length,this.ebo,0);
+        gl.glBindBuffer(GL4.GL_ELEMENT_ARRAY_BUFFER,this.ebo[0]);
         IntBuffer ibVertices = Buffers.newDirectIntBuffer(indices);
-        createGenBuffers(gl,this.ebo,GL4.GL_ELEMENT_ARRAY_BUFFER,ibVertices);
+        bufferSizeInBytes = indices.length * Buffers.SIZEOF_INT;
+        gl.glBufferData(GL4.GL_ELEMENT_ARRAY_BUFFER, bufferSizeInBytes, ibVertices, GL4.GL_STATIC_DRAW);
 
         // Position attribute
         gl.glVertexAttribPointer(shaderLocation[0], 3, GL4.GL_FLOAT,false,5*Buffers.SIZEOF_FLOAT,0);
@@ -129,9 +137,9 @@ public class CoordinateSystems implements GLEventListener {
 
 
         //加载和创建纹理
-        JoglUtils.createGlTexture(gl,"D:\\qqqworkspaces\\qqqjogl\\src\\main\\resources\\container.jpg",texture,GL4.GL_REPEAT,GL4.GL_REPEAT,GL4.GL_LINEAR,GL4.GL_LINEAR);
+        JoglUtils.createGlTexture(gl,"D:\\Document\\texture\\container.jpg",texture,GL4.GL_REPEAT,GL4.GL_REPEAT,GL4.GL_LINEAR,GL4.GL_LINEAR);
 
-        JoglUtils.createGlTexture(gl,"D:\\qqqworkspaces\\qqqjogl\\src\\main\\resources\\awesomeface.png",texture1,GL4.GL_REPEAT,GL4.GL_REPEAT,GL4.GL_LINEAR,GL4.GL_LINEAR);
+        JoglUtils.createGlTexture(gl,"D:\\Document\\texture\\awesomeface.png",texture1,GL4.GL_REPEAT,GL4.GL_REPEAT,GL4.GL_LINEAR,GL4.GL_LINEAR);
 
     }
 
