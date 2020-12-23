@@ -63,12 +63,20 @@
             <artifactId>slick-util</artifactId>
             <version>1.0.0</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/io.github.java-graphics/glm -->
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/io.github.java-graphics/glm &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>io.github.java-graphics</groupId>-->
+<!--            <artifactId>glm</artifactId>-->
+<!--            <version>1.0.1</version>-->
+<!--        </dependency>-->
+
+        <!-- https://mvnrepository.com/artifact/org.joml/joml -->
         <dependency>
-            <groupId>io.github.java-graphics</groupId>
-            <artifactId>glm</artifactId>
-            <version>1.0.1</version>
+            <groupId>org.joml</groupId>
+            <artifactId>joml</artifactId>
+            <version>1.9.25</version>
         </dependency>
+
 
     </dependencies>
 

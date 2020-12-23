@@ -2,9 +2,11 @@ package com.qqq.utils;
 
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLException;
+import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
 import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.TextureData;
 import com.jogamp.opengl.util.texture.TextureIO;
 
 import java.io.*;
@@ -118,5 +120,34 @@ public class JoglUtils {
             e.printStackTrace();
         }
         return t;
+    }
+
+    public static int[] initGlTexture(final GL4 gl,String texturePath,int[] texture,int i1,int i2,int i3,int i4,String type){
+        try {
+            TextureData data = TextureIO.newTextureData(GLProfile.getDefault(), new File(texturePath), false, type);
+            gl.glGenTextures(texture.length,texture,0);
+            gl.glBindTexture(GL4.GL_TEXTURE_2D,texture[0]);
+            gl.glTexImage2D(GL4.GL_TEXTURE_2D,
+                    0,
+                    data.getInternalFormat(),
+                    data.getWidth(),
+                    data.getHeight(),
+                    data.getBorder(),
+                    data.getPixelFormat(),
+                    data.getPixelType(),
+                    data.getBuffer()
+                    );
+            //纹理环绕方式
+            gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_WRAP_S, i1);
+            gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_WRAP_T, i2);
+            //纹理过滤
+            gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, i3);
+            gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, i4);
+            gl.glGenerateTextureMipmap(GL4.GL_TEXTURE_2D);
+            gl.glBindTexture(GL4.GL_TEXTURE_2D, 0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new int[2];
     }
 }

@@ -5,9 +5,8 @@ import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.qqq.utils.JoglUtils;
-import glm.Glm;
-import glm.mat._4.Mat4;
-import glm.vec._3.Vec3;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
@@ -56,6 +55,7 @@ public class CoordinateSystems implements GLEventListener {
         shaderLocation[0] = position;
         int texCoord = gl.glGetAttribLocation(this.program,"texCoord");
         shaderLocation[2] = texCoord;
+
         createBuffer(gl, shaderLocation, vertices,indices);
     }
 
@@ -81,20 +81,20 @@ public class CoordinateSystems implements GLEventListener {
         // Activate shader
         gl.glUseProgram(this.program);
 
-        Mat4 model = new Mat4();
-        Mat4 view = new Mat4();
-        Mat4 projection = new Mat4();
-        model.rotate(-50.0f , new Vec3(1.0f, 0.0f, 0.0f));
-        view.translate(new Vec3(0.0f, 0.0f, -0.8f));
-        projection.perspective(45.0f, 1.0f, 0.1f, 100.0f);
+        Matrix4f model = new Matrix4f();
+        Matrix4f view = new Matrix4f();
+        Matrix4f projection = new Matrix4f();
+        model.rotate(-45.0f, new Vector3f(1.0f, 0.0f, 0.0f));
+        view.translate(new Vector3f(0.0f, 0.0f, -3.0f));
+        projection.perspective((float) Math.toRadians(45.0f), 1.0f, 0.01f, 100.0f);
 
         int modelLoc = gl.glGetUniformLocation(this.program, "model");
         int viewLoc = gl.glGetUniformLocation(this.program, "view");
         int projLoc = gl.glGetUniformLocation(this.program, "projection");
 
-        gl.glUniformMatrix4fv(modelLoc, 1, false,Buffers.newDirectFloatBuffer(model.toFa_()));
-        gl.glUniformMatrix4fv(viewLoc, 1, false,Buffers.newDirectFloatBuffer(view.toFa_()));
-        gl.glUniformMatrix4fv(projLoc, 1, false,Buffers.newDirectFloatBuffer(projection.toFa_()));
+        gl.glUniformMatrix4fv(modelLoc, 1, false,model.get(Buffers.newDirectFloatBuffer(16)));
+        gl.glUniformMatrix4fv(viewLoc, 1, false,view.get(Buffers.newDirectFloatBuffer(16)));
+        gl.glUniformMatrix4fv(projLoc, 1, false,projection.get(Buffers.newDirectFloatBuffer(16)));
 
         // Draw container
         gl.glBindVertexArray(this.vao[0]);

@@ -4,8 +4,8 @@ import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.glu.GLU;
 import com.qqq.utils.JoglUtils;
-import glm.mat._4.Mat4;
-import glm.vec._3.Vec3;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -58,7 +58,7 @@ public class Texturetest  implements GLEventListener {
 
         createTime = System.currentTimeMillis();
 
-        this.program = JoglUtils.createProgram(gl,"D:\\qqqworkspaces\\qqqjogl\\src\\main\\resources\\textureShader.vs","D:\\qqqworkspaces\\qqqjogl\\src\\main\\resources\\textureShader.frag");
+        this.program = JoglUtils.createProgram(gl,"D:\\Document\\texture\\textureShader.vs","D:\\Document\\texture\\textureShader.frag");
 
         this.shaderPosition = gl.glGetAttribLocation(this.program, "position");
         shaderLocation[0] = this.shaderPosition;
@@ -93,14 +93,14 @@ public class Texturetest  implements GLEventListener {
         // Activate shader
         gl.glUseProgram(this.program);
 
-        Mat4 transform = new Mat4();
-        transform.translate(new Vec3(0.5f, -0.5f, 0.0f));
-        transform.rotate(10.0f*(System.currentTimeMillis() - createTime),new Vec3(0.0f, 0.0f, 1.0f));
+        Matrix4f transform = new Matrix4f();
+        transform.translate(new Vector3f(0.5f, -0.5f, 0.0f));
+        transform.rotate(10.0f*(System.currentTimeMillis() - createTime),new Vector3f(0.0f, 0.0f, 1.0f));
 
         //Mat4 projection = glm.perspective_(45.0f, 4.0f/3.0f, 0.1f, 100.0f);
         int transformLoc = gl.glGetUniformLocation(this.program, "transform");
-        FloatBuffer floatBuffer = Buffers.newDirectFloatBuffer(transform.toFa_());
-        gl.glUniformMatrix4fv(transformLoc, 1, false,floatBuffer);
+        FloatBuffer floatBuffer = Buffers.newDirectFloatBuffer(16);
+        gl.glUniformMatrix4fv(transformLoc, 1, false,transform.get(floatBuffer));
 
         // Draw container
         gl.glBindVertexArray(this.vao[0]);
@@ -145,9 +145,9 @@ public class Texturetest  implements GLEventListener {
 
 
         //加载和创建纹理
-        JoglUtils.createGlTexture(gl,"D:\\qqqworkspaces\\qqqjogl\\src\\main\\resources\\container.jpg",texture,GL4.GL_REPEAT,GL4.GL_REPEAT,GL4.GL_LINEAR,GL4.GL_LINEAR);
+        JoglUtils.createGlTexture(gl,"D:\\Document\\texture\\container.jpg",texture,GL4.GL_REPEAT,GL4.GL_REPEAT,GL4.GL_LINEAR,GL4.GL_LINEAR);
 
-        JoglUtils.createGlTexture(gl,"D:\\qqqworkspaces\\qqqjogl\\src\\main\\resources\\awesomeface.png",texture1,GL4.GL_REPEAT,GL4.GL_REPEAT,GL4.GL_LINEAR,GL4.GL_LINEAR);
+        JoglUtils.createGlTexture(gl,"D:\\Document\\texture\\awesomeface.png",texture1,GL4.GL_REPEAT,GL4.GL_REPEAT,GL4.GL_LINEAR,GL4.GL_LINEAR);
 
     }
 }
