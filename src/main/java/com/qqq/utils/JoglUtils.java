@@ -1,5 +1,6 @@
 package com.qqq.utils;
 
+import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLException;
 import com.jogamp.opengl.GLProfile;
@@ -8,6 +9,7 @@ import com.jogamp.opengl.util.glsl.ShaderProgram;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureData;
 import com.jogamp.opengl.util.texture.TextureIO;
+import org.joml.Matrix4f;
 
 import java.io.*;
 
@@ -120,6 +122,12 @@ public class JoglUtils {
             e.printStackTrace();
         }
         return t;
+    }
+
+    public static void uniformMatrix4fv(final GL4 gl,final int program,final String name,final Matrix4f matrix4f){
+        int location = gl.glGetUniformLocation(program, name);
+        gl.glUniformMatrix4fv(location, 1, false,matrix4f.get(Buffers.newDirectFloatBuffer(16)));
+
     }
 
     public static int[] initGlTexture(final GL4 gl,String texturePath,int[] texture,int i1,int i2,int i3,int i4,String type){

@@ -31,10 +31,47 @@ public class CoordinateSystems implements GLEventListener {
     long time;
     float[] vertices = {
             // Positions          // Texture Coords
-            0.5f,  0.5f, 0.0f,   1.0f, 1.0f, // Top Right
-            0.5f, -0.5f, 0.0f,   1.0f, 0.0f, // Bottom Right
-            -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, // Bottom Left
-            -0.5f,  0.5f, 0.0f,   0.0f, 1.0f  // Top Left
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+            0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
     int[] indices = {  // Note that we start from 0!
             0, 1, 3, // First Triangle
@@ -45,7 +82,7 @@ public class CoordinateSystems implements GLEventListener {
     public void init(GLAutoDrawable glAutoDrawable) {
         gl = glAutoDrawable.getGL().getGL4();
         JoglUtils.clearColorAndDepth(gl,1.0f, 0.0f, 1.0f, 1.0f,1.0f);
-        JoglUtils.enableCullFace(gl,GL4.GL_BACK,GL4.GL_CW);//清除背面绘制 清除背面顺时针绘制为正
+        //JoglUtils.enableCullFace(gl,GL4.GL_BACK,GL4.GL_CW);//清除背面绘制 清除背面顺时针绘制为正
         JoglUtils.enableDepthtest(gl,GL4.GL_LEQUAL);//深度测试函数为GL_LEQUAL
         //创建着色器程序
         this.program = JoglUtils.createProgram(gl,"D:\\Document\\texture\\coordinateShader.vs","D:\\Document\\texture\\coordinateShader.frag");
@@ -67,6 +104,19 @@ public class CoordinateSystems implements GLEventListener {
         gl.glDeleteProgram(program);
     }
 
+    Vector3f[] cubePositions = {
+            new Vector3f( 0.0f,  0.0f,  0.0f),
+            new Vector3f( 2.0f,  5.0f, -15.0f),
+            new Vector3f(-1.5f, -2.2f, -2.5f),
+            new Vector3f(-3.8f, -2.0f, -12.3f),
+            new Vector3f( 2.4f, -0.4f, -3.5f),
+            new Vector3f(-1.7f,  3.0f, -7.5f),
+            new Vector3f( 1.3f, -2.0f, -2.5f),
+            new Vector3f( 1.5f,  2.0f, -2.5f),
+            new Vector3f( 1.5f,  0.2f, -1.5f),
+            new Vector3f(-1.3f,  1.0f, -1.5f)
+    };
+
     public void display(GLAutoDrawable glAutoDrawable) {
         GL4 gl =glAutoDrawable.getGL().getGL4();
         gl.glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -84,21 +134,18 @@ public class CoordinateSystems implements GLEventListener {
         Matrix4f model = new Matrix4f();
         Matrix4f view = new Matrix4f();
         Matrix4f projection = new Matrix4f();
-        model.rotate(-45.0f, new Vector3f(1.0f, 0.0f, 0.0f));
+        model.rotate(-45.0f*(System.currentTimeMillis() -time)/100000, new Vector3f(0.5f, 1.0f, 0.0f));
         view.translate(new Vector3f(0.0f, 0.0f, -3.0f));
         projection.perspective((float) Math.toRadians(45.0f), 1.0f, 0.01f, 100.0f);
 
-        int modelLoc = gl.glGetUniformLocation(this.program, "model");
-        int viewLoc = gl.glGetUniformLocation(this.program, "view");
-        int projLoc = gl.glGetUniformLocation(this.program, "projection");
-
-        gl.glUniformMatrix4fv(modelLoc, 1, false,model.get(Buffers.newDirectFloatBuffer(16)));
-        gl.glUniformMatrix4fv(viewLoc, 1, false,view.get(Buffers.newDirectFloatBuffer(16)));
-        gl.glUniformMatrix4fv(projLoc, 1, false,projection.get(Buffers.newDirectFloatBuffer(16)));
+        JoglUtils.uniformMatrix4fv(gl,this.program,"model",model);
+        JoglUtils.uniformMatrix4fv(gl,this.program,"view",view);
+        JoglUtils.uniformMatrix4fv(gl,this.program,"projection",projection);
 
         // Draw container
         gl.glBindVertexArray(this.vao[0]);
-        gl.glDrawElements(GL4.GL_TRIANGLES, 6, GL4.GL_UNSIGNED_INT, 0);
+        //gl.glDrawElements(GL4.GL_TRIANGLES, 6, GL4.GL_UNSIGNED_INT, 0);
+        gl.glDrawArrays(GL4.GL_TRIANGLES,0,36);
         gl.glBindVertexArray(0);
     }
 
