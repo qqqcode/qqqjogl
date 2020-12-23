@@ -27,6 +27,10 @@ public class CoordinateSystems implements GLEventListener {
     private final int[] ebo = new int[1];
     private final int[] texture = new int[1];
     private final int[] texture1 = new int[1];
+    private String vsPath;
+    private String fragPath;
+    private String texturePath1 = this.getClass().getResource("/container.jpg").getPath();
+    private String texturePath2 = this.getClass().getResource("/awesomeface.png").getPath();
 
     long time;
     float[] vertices = {
@@ -85,9 +89,12 @@ public class CoordinateSystems implements GLEventListener {
         //JoglUtils.enableCullFace(gl,GL4.GL_BACK,GL4.GL_CW);//清除背面绘制 清除背面顺时针绘制为正
         JoglUtils.enableDepthtest(gl,GL4.GL_LEQUAL);//深度测试函数为GL_LEQUAL
         //创建着色器程序
-        this.program = JoglUtils.createProgram(gl,"D:\\Document\\texture\\coordinateShader.vs","D:\\Document\\texture\\coordinateShader.frag");
+        vsPath = this.getClass().getResource("/coordinateShader.vs").getPath();
+        fragPath  = this.getClass().getResource("/coordinateShader.frag").getPath();
+        this.program = JoglUtils.createProgram(gl,vsPath,fragPath);
 
         time = System.currentTimeMillis();
+
         int position = gl.glGetAttribLocation(this.program, "position");
         shaderLocation[0] = position;
         int texCoord = gl.glGetAttribLocation(this.program,"texCoord");
@@ -184,9 +191,8 @@ public class CoordinateSystems implements GLEventListener {
 
 
         //加载和创建纹理
-        JoglUtils.createGlTexture(gl,"D:\\Document\\texture\\container.jpg",texture,GL4.GL_REPEAT,GL4.GL_REPEAT,GL4.GL_LINEAR,GL4.GL_LINEAR);
-
-        JoglUtils.createGlTexture(gl,"D:\\Document\\texture\\awesomeface.png",texture1,GL4.GL_REPEAT,GL4.GL_REPEAT,GL4.GL_LINEAR,GL4.GL_LINEAR);
+        JoglUtils.createGlTexture(gl,texturePath1,texture,GL4.GL_REPEAT,GL4.GL_REPEAT,GL4.GL_LINEAR,GL4.GL_LINEAR);
+        JoglUtils.createGlTexture(gl,texturePath2,texture1,GL4.GL_REPEAT,GL4.GL_REPEAT,GL4.GL_LINEAR,GL4.GL_LINEAR);
 
     }
 
