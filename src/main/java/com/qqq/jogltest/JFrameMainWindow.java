@@ -12,8 +12,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 public class JFrameMainWindow extends JFrame {
-    CoordinateSystems listener=new CoordinateSystems();
-    private static FPSAnimator animator=null;
+    CameraSystem listener=new CameraSystem();
+    private static FPSAnimator animator = null;
     public JFrameMainWindow() throws HeadlessException {
         super("qqq");
         setSize(800,600);

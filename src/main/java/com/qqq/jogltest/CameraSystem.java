@@ -8,16 +8,11 @@ import com.qqq.utils.JoglUtils;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-import java.nio.Buffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-
 /**
  * @author Johnson
- * 2020/12/21
+ * 2020/12/24
  */
-public class CoordinateSystems implements GLEventListener {
-
+public class CameraSystem implements GLEventListener {
     GL4 gl;
     private int program;
 
@@ -32,7 +27,8 @@ public class CoordinateSystems implements GLEventListener {
     private String texturePath1 = this.getClass().getResource("/container.jpg").getPath();
     private String texturePath2 = this.getClass().getResource("/awesomeface.png").getPath();
 
-    long time;
+    long initTime;
+
     float[] vertices = {
             // Positions          // Texture Coords
             0.5f, -0.5f, -0.5f,  1.0f, 0.0f,//b
@@ -89,11 +85,11 @@ public class CoordinateSystems implements GLEventListener {
         JoglUtils.enableCullFace(gl,GL4.GL_BACK,GL4.GL_CCW);//清除背面绘制 清除背面逆时针绘制为正面，此时判断所有三角形绘制是否都是逆时针
         JoglUtils.enableDepthtest(gl,GL4.GL_LEQUAL);//深度测试函数为GL_LEQUAL
         //创建着色器程序
-        vsPath = this.getClass().getResource("/coordinateShader.vs").getPath();
-        fragPath  = this.getClass().getResource("/coordinateShader.frag").getPath();
+        vsPath = this.getClass().getResource("/cameraShader.vs").getPath();
+        fragPath  = this.getClass().getResource("/cameraShader.frag").getPath();
         this.program = JoglUtils.createProgram(gl,vsPath,fragPath);
 
-        time = System.currentTimeMillis();
+        initTime = System.currentTimeMillis();
 
         int position = gl.glGetAttribLocation(this.program, "position");
         shaderLocation[0] = position;
@@ -107,8 +103,8 @@ public class CoordinateSystems implements GLEventListener {
         GL4 gl = glAutoDrawable.getGL().getGL4();
         gl.glDeleteBuffers(ebo.length,ebo,0);
         gl.glDeleteVertexArrays(vao.length, vao, 0);
-        gl.glDeleteBuffers(vbo.length,vbo,0);
         gl.glDeleteProgram(program);
+        gl.glDeleteBuffers(vbo.length,vbo,0);
     }
 
     Vector3f[] cubePositions = {
@@ -138,21 +134,29 @@ public class CoordinateSystems implements GLEventListener {
         // Activate shader
         gl.glUseProgram(this.program);
 
-        Matrix4f model = new Matrix4f();
+
         Matrix4f view = new Matrix4f();
         Matrix4f projection = new Matrix4f();
-        model.rotate(-45.0f*(System.currentTimeMillis() -time)/100000, new Vector3f(0.5f, 1.0f, 0.0f));
-        view.translate(new Vector3f(0.0f, 0.0f, -3.0f));
-        projection.perspective((float) Math.toRadians(45.0f), (float)(4/3), 0.01f, 100.0f);
 
-        JoglUtils.uniformMatrix4fv(gl,this.program,"model",model);
+        System.out.println(System.currentTimeMillis());
+        float camX = (float) Math.sin((System.currentTimeMillis() - initTime)/100)*10.0f;
+        float camZ = (float) Math.cos((System.currentTimeMillis() - initTime)/100)*10.0f;
+        view.translate(new Vector3f(0.0f, 0.0f, -3.0f));
+        view.lookAt(new Vector3f(camX,0.0f,camZ),new Vector3f(0.0f,0.0f,0.0f),new Vector3f(0.0f,1.0f,0.0f));
+        projection.perspective((float) Math.toRadians(45.0f), (float)(4/3), 0.01f, 100.0f);
+        int modelLoc = gl.glGetUniformLocation(this.program,"model");
         JoglUtils.uniformMatrix4fv(gl,this.program,"view",view);
         JoglUtils.uniformMatrix4fv(gl,this.program,"projection",projection);
 
-        // Draw container
         gl.glBindVertexArray(this.vao[0]);
         //gl.glDrawElements(GL4.GL_TRIANGLES, 6, GL4.GL_UNSIGNED_INT, 0);
-        gl.glDrawArrays(GL4.GL_TRIANGLES,0,36);
+        //gl.glDrawArrays(GL4.GL_TRIANGLES,0,36);
+        for (int i = 0; i < cubePositions.length; i++) {
+            Matrix4f model = new Matrix4f();
+            model.translate(cubePositions[i]).rotate(20.0f*i,new Vector3f(1.0f, 0.3f, 0.5f));
+            gl.glUniformMatrix4fv(modelLoc, 1, false,model.get(Buffers.newDirectFloatBuffer(16)));
+            gl.glDrawArrays(GL4.GL_TRIANGLES,0,36);
+        }
         gl.glBindVertexArray(0);
     }
 
@@ -162,49 +166,27 @@ public class CoordinateSystems implements GLEventListener {
     }
 
     private void createBuffer(final GL4 gl, final int[] shaderLocation, float[] values,int[] indices) {
-
         gl.glGenVertexArrays(this.vao.length, this.vao, 0);
         gl.glBindVertexArray(this.vao[0]);
 
         //创建定点缓冲对象
-        gl.glGenBuffers(this.vbo.length, this.vbo, 0);
-        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, this.vbo[0]);
-        int bufferSizeInBytes = values.length * Buffers.SIZEOF_FLOAT;
-        FloatBuffer fbVertices = Buffers.newDirectFloatBuffer(values);
-        gl.glBufferData(GL4.GL_ARRAY_BUFFER, bufferSizeInBytes, fbVertices, GL4.GL_STATIC_DRAW);
+        JoglUtils.initVBO(gl,values,this.vbo);
 
-        gl.glGenBuffers(this.ebo.length,this.ebo,0);
-        gl.glBindBuffer(GL4.GL_ELEMENT_ARRAY_BUFFER,this.ebo[0]);
-        IntBuffer ibVertices = Buffers.newDirectIntBuffer(indices);
-        bufferSizeInBytes = indices.length * Buffers.SIZEOF_INT;
-        gl.glBufferData(GL4.GL_ELEMENT_ARRAY_BUFFER, bufferSizeInBytes, ibVertices, GL4.GL_STATIC_DRAW);
+        JoglUtils.initEBO(gl,indices,this.ebo);
 
         // Position attribute
         gl.glVertexAttribPointer(shaderLocation[0], 3, GL4.GL_FLOAT,false,5*Buffers.SIZEOF_FLOAT,0);
         gl.glEnableVertexAttribArray(0);
-        // Color attribute
+
         //texture
         gl.glVertexAttribPointer(shaderLocation[2], 2, GL4.GL_FLOAT,false,5*Buffers.SIZEOF_FLOAT,3*Buffers.SIZEOF_FLOAT);
         gl.glEnableVertexAttribArray(2);
 
         gl.glBindVertexArray(0);
 
-
         //加载和创建纹理
         JoglUtils.createGlTexture(gl,texturePath1,texture,GL4.GL_REPEAT,GL4.GL_REPEAT,GL4.GL_LINEAR,GL4.GL_LINEAR);
         JoglUtils.createGlTexture(gl,texturePath2,texture1,GL4.GL_REPEAT,GL4.GL_REPEAT,GL4.GL_LINEAR,GL4.GL_LINEAR);
 
-    }
-
-    private void createGenBuffers(final GL4 gl, int[] values,int bufferType, Buffer buffer){
-        gl.glGenBuffers(values.length, values, 0);
-        gl.glBindBuffer(bufferType, values[0]);
-        if(bufferType==GL4.GL_ARRAY_BUFFER){
-            int bufferSizeInBytes = values.length * Buffers.SIZEOF_FLOAT;
-            gl.glBufferData(GL4.GL_ARRAY_BUFFER, bufferSizeInBytes, buffer, GL4.GL_STATIC_DRAW);
-        }else if(bufferType == GL4.GL_ELEMENT_ARRAY_BUFFER){
-            int bufferSizeInBytes = indices.length * Buffers.SIZEOF_INT;
-            gl.glBufferData(GL4.GL_ELEMENT_ARRAY_BUFFER, bufferSizeInBytes, buffer, GL4.GL_STATIC_DRAW);
-        }
     }
 }

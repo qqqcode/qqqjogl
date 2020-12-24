@@ -12,6 +12,8 @@ import com.jogamp.opengl.util.texture.TextureIO;
 import org.joml.Matrix4f;
 
 import java.io.*;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 public class JoglUtils {
 
@@ -128,6 +130,22 @@ public class JoglUtils {
         int location = gl.glGetUniformLocation(program, name);
         gl.glUniformMatrix4fv(location, 1, false,matrix4f.get(Buffers.newDirectFloatBuffer(16)));
 
+    }
+
+    public static void initVBO(GL4 gl,float[] values,final int[] vbo){
+        gl.glGenBuffers(vbo.length, vbo, 0);
+        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, vbo[0]);
+        int bufferSizeInBytes = values.length * Buffers.SIZEOF_FLOAT;
+        FloatBuffer fbVertices = Buffers.newDirectFloatBuffer(values);
+        gl.glBufferData(GL4.GL_ARRAY_BUFFER, bufferSizeInBytes, fbVertices, GL4.GL_STATIC_DRAW);
+    }
+
+    public static void initEBO(GL4 gl,int[] indices,int[] ebo){
+        gl.glGenBuffers(ebo.length,ebo,0);
+        gl.glBindBuffer(GL4.GL_ELEMENT_ARRAY_BUFFER,ebo[0]);
+        IntBuffer ibVertices = Buffers.newDirectIntBuffer(indices);
+        int bufferSizeInBytes = indices.length * Buffers.SIZEOF_INT;
+        gl.glBufferData(GL4.GL_ELEMENT_ARRAY_BUFFER, bufferSizeInBytes, ibVertices, GL4.GL_STATIC_DRAW);
     }
 
     public static int[] initGlTexture(final GL4 gl,String texturePath,int[] texture,int i1,int i2,int i3,int i4,String type){
