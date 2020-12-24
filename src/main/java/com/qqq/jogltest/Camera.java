@@ -22,11 +22,26 @@ public class Camera {
     public Vector3f right;
     public Vector3f worldUp;
 
-    public float yaw;
-    public float pitch;
-    public float movementSpeed;
-    public float mouseSensitivity;
-    public float zoom;
+    public float yaw = -90.0f;
+    public float pitch = 0.0f;
+    public float movementSpeed = 3.0f;
+    public float mouseSensitivity = 0.25f;
+    public float zoom = 45.0f;
+
+
+    public Camera(float posX,float posY,float posZ){
+        this.position = new Vector3f(posX,posY,posZ);
+        this.front = new Vector3f(0.0f,0.0f,-1.0f);
+        this.worldUp = new Vector3f(0.0f,1.0f,0.0f);
+        this.updateCameraVectors();
+    }
+
+    public Camera(float posX,float posY,float posZ,float upX,float upY,float upZ,float yaw,float pitch) {
+        this.position = new Vector3f(posX,posY,posZ);
+        this.worldUp = new Vector3f(upX,upY,upZ);
+        this.front = new Vector3f(0.0f,0.0f,-1.0f);
+        this.updateCameraVectors();
+    }
 
     public Camera(Vector3f position, Vector3f front, Vector3f up, Vector3f right, Vector3f worldUp, float yaw, float pitch, float movementSpeed, float mouseSensitivity, float zoom) {
         this.position = position;
@@ -39,6 +54,7 @@ public class Camera {
         this.movementSpeed = movementSpeed;
         this.mouseSensitivity = mouseSensitivity;
         this.zoom = zoom;
+        this.updateCameraVectors();
     }
 
     Matrix4f getViewMatrix(Matrix4f matrix4f){
@@ -103,16 +119,15 @@ public class Camera {
         }
     }
 
-//    private void updateCameraVectors()
-//    {
-//        // Calculate the new Front vector
-//        Vector3f front;
-//        front.x = Math.cos(glm::radians(this->Yaw)) * cos(glm::radians(this->Pitch));
-//        front.y = Math.sin(glm::radians(this.pitch));
-//        front.z = Math.sin(glm::radians(this->Yaw)) * cos(glm::radians(this->Pitch));
-//        this.front.normalize(front);
-//        // Also re-calculate the Right and Up vector
-//        this.right.normalize(glm::cross(this.front, this.worldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-//        this.up.normalize(glm::cross(this.right, this.front));
-//    }
+    private void updateCameraVectors()
+    {
+        // Calculate the new Front vector
+        Vector3f front = new Vector3f((float)Math.cos(Math.toRadians(this.yaw) * Math.cos(Math.toRadians(this.pitch))),
+                (float)Math.sin(Math.toRadians(this.pitch)),
+                (float)Math.sin(Math.toRadians(this.yaw) * Math.cos(Math.toRadians(this.pitch))));
+        this.front.normalize(front);
+        // Also re-calculate the Right and Up vector
+        this.right = new Vector3f().cross(this.front, this.worldUp).normalize();  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+        this.up = new Vector3f().cross(this.right, this.front).normalize();
+    }
 }

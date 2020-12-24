@@ -12,9 +12,12 @@ import org.joml.Vector3f;
  * @author Johnson
  * 2020/12/24
  */
-public class CameraSystem implements GLEventListener {
+public class CameraSystem implements GLEventListener{
     GL4 gl;
     private int program;
+
+    float xkey;
+    float ykey;
 
     private int[] shaderLocation = new int[16];
     private final int[] vao = new int[1];
@@ -26,6 +29,9 @@ public class CameraSystem implements GLEventListener {
     private String fragPath;
     private String texturePath1 = this.getClass().getResource("/container.jpg").getPath();
     private String texturePath2 = this.getClass().getResource("/awesomeface.png").getPath();
+
+    FreeCamera freeCamera = new FreeCamera();
+    Camera camera = new Camera(0.0f, 0.0f, 3.0f);
 
     long initTime;
 
@@ -97,6 +103,8 @@ public class CameraSystem implements GLEventListener {
         shaderLocation[2] = texCoord;
 
         createBuffer(gl, shaderLocation, vertices,indices);
+
+//        camera.apply()
     }
 
     public void dispose(GLAutoDrawable glAutoDrawable) {
@@ -138,12 +146,15 @@ public class CameraSystem implements GLEventListener {
         Matrix4f view = new Matrix4f();
         Matrix4f projection = new Matrix4f();
 
-        System.out.println(System.currentTimeMillis());
-        float camX = (float) Math.sin((System.currentTimeMillis() - initTime)/100)*10.0f;
-        float camZ = (float) Math.cos((System.currentTimeMillis() - initTime)/100)*10.0f;
-        view.translate(new Vector3f(0.0f, 0.0f, -3.0f));
-        view.lookAt(new Vector3f(camX,0.0f,camZ),new Vector3f(0.0f,0.0f,0.0f),new Vector3f(0.0f,1.0f,0.0f));
-        projection.perspective((float) Math.toRadians(45.0f), (float)(4/3), 0.01f, 100.0f);
+        //System.out.println(System.currentTimeMillis());
+//        float camX = (float) Math.sin((System.currentTimeMillis() - initTime)/1000)*10.0f;
+//        float camZ = (float) Math.cos((System.currentTimeMillis() - initTime)/1000)*10.0f;
+//        view.translate(new Vector3f(0.0f, 0.0f, -5.0f));
+//        view.lookAt(new Vector3f(10.0f,0.0f,10.0f),new Vector3f(0.0f,0.0f,0.0f),new Vector3f(0.0f,1.0f,0.0f));
+        view = freeCamera.apply(view);
+        freeCamera.forward(new Vector3f(0.0f,0.0f,10.0f*xkey));
+        System.out.println(xkey);
+        projection.perspective(camera.zoom, (float)(4/3), 0.01f, 1000.0f);
         int modelLoc = gl.glGetUniformLocation(this.program,"model");
         JoglUtils.uniformMatrix4fv(gl,this.program,"view",view);
         JoglUtils.uniformMatrix4fv(gl,this.program,"projection",projection);

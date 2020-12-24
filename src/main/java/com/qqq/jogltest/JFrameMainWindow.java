@@ -10,6 +10,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 public class JFrameMainWindow extends JFrame {
     CameraSystem listener=new CameraSystem();
@@ -18,11 +20,50 @@ public class JFrameMainWindow extends JFrame {
         super("qqq");
         setSize(800,600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        GLCapabilities glcaps=new GLCapabilities(GLProfile.get(GLProfile.GL2));
-        GLCanvas canvas=new GLCanvas(glcaps);
+        GLCapabilities glcaps = new GLCapabilities(GLProfile.getGL2GL3());
+        GLCanvas canvas = new GLCanvas(glcaps);
         canvas.addGLEventListener(listener);
-        //canvas.addMouseListener(listener);
-        this.addKeyListener(new keyEventListener());
+        //this.addMouseListener();
+        this.addKeyListener(new KeyListener() {
+            public void keyTyped(KeyEvent e) {
+                System.out.println("keyTyped"+e.getKeyCode());
+            }
+
+            public void keyPressed(KeyEvent e) {
+                System.out.println("keyPressed"+e.getKeyCode());
+                if(e.getKeyCode()==87){
+                    listener.xkey+=5.0f;
+                }
+            }
+
+            public void keyReleased(KeyEvent e) {
+                System.out.println("keyReleased"+e.getKeyCode());
+                if(e.getKeyCode()==87){
+                    listener.xkey=0.0f;
+                }
+            }
+        });
+        this.addMouseListener(new MouseListener() {
+            public void mouseClicked(MouseEvent e) {
+                System.out.println("mouseClicked");
+            }
+
+            public void mousePressed(MouseEvent e) {
+                System.out.println("mousePressed");
+            }
+
+            public void mouseReleased(MouseEvent e) {
+                System.out.println("mouseReleased");
+            }
+
+            public void mouseEntered(MouseEvent e) {
+                System.out.println("mouseEntered");
+            }
+
+            public void mouseExited(MouseEvent e) {
+                System.out.println("mouseExited");
+            }
+        });
         getContentPane().add(canvas, BorderLayout.CENTER);
         animator=new FPSAnimator(canvas,60,true);
 
@@ -54,38 +95,6 @@ public class JFrameMainWindow extends JFrame {
                 animator.start();
             }
         });
-    }
-
-    class keyEventListener implements KeyListener {
-
-        public void keyTyped(KeyEvent e) {
-
-        }
-
-        public void keyPressed(KeyEvent e) {
-            //处理键盘事件
-            System.out.println(e.getKeyCode());
-//            if (e.getKeyCode() == 37) {
-//                listener.xSpeed = -1.0f;
-//            }
-//
-//            if (e.getKeyCode() == 38) {
-//                listener.zSpeed = -1.0f;
-//            }
-//
-//            if (e.getKeyCode() == 39) {
-//                listener.xSpeed = 1.0f;
-//            }
-//
-//            if (e.getKeyCode() == 40) {
-//                listener.zSpeed = 1.0f;
-//            }
-        }
-
-        public void keyReleased(KeyEvent e) {
-//            listener.zSpeed = 0.0f;
-//            listener.xSpeed = 0.0f;
-        }
     }
 
 }
