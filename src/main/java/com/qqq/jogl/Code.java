@@ -1,14 +1,12 @@
 package com.qqq.jogl;
 
 import com.jogamp.common.nio.Buffers;
-import com.jogamp.opengl.GL4;
-import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLContext;
-import com.jogamp.opengl.GLEventListener;
+import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import javax.swing.*;
 
@@ -58,12 +56,11 @@ public class Code extends JFrame implements GLEventListener {
         GL4 gl = (GL4) GLContext.getCurrentGL();
         rendering_program = createShaderProgram();
         setupVertices();
-        cameraX=0.0f; cameraY=0.0f; cameraZ=8.0f;
-        cubeLocX=0.0f; cubeLocY=-2.0f; cubeLocZ=0.0f; // shifted down along the Y-axis to reveal perspective
-        // Create a perspective matrix, this one has fovy=60, aspect ratio matches screen window.
-        // Values for near and far clipping planes can vary as discussed in Section 4.9.
+        cameraX=0.0f; cameraY=0.0f; cameraZ=6.0f;
+        cubeLocX=0.0f; cubeLocY=4.0f; cubeLocZ=0.0f; // shifted down along the Y-axis to reveal perspective
+
         float aspect = (float) myCanvas.getWidth() / (float) myCanvas.getHeight();
-        pMat.perspective(60.0f, aspect, 0.1f, 1000.0f);
+        pMat=new Matrix4f().perspective(60.0f, aspect, 0.1f, 1000.0f);
 
     }
 
@@ -74,18 +71,17 @@ public class Code extends JFrame implements GLEventListener {
     public void display(GLAutoDrawable glAutoDrawable) {
         GL4 gl = (GL4) GLContext.getCurrentGL();
         gl.glClear(GL_DEPTH_BUFFER_BIT);
+        float bkg[] = {0.0f,0.0f,0.0f,1.0f};
+        FloatBuffer bkgBuffer = Buffers.newDirectFloatBuffer(bkg);
+        gl.glClearBufferfv(GL4.GL_COLOR,0,bkgBuffer);
         gl.glUseProgram(rendering_program);
-        // build view matrix
-//        Matrix4f vMat = new Matrix4f();
-//        vMat.translate(-cameraX,-cameraY,-cameraZ);
-//        // build model matrix
-//        Matrix4f mMat = new Matrix4f();
-//        mMat.translate(cubeLocX, cubeLocY, cubeLocZ);
-        // concatenate model and view matrix to create MV matrix
-        Matrix4f mvMat = new Matrix4f().translate(-cameraX,-cameraY,-cameraZ).translate(cubeLocX, cubeLocY, cubeLocZ);
-        //mvMat.concatenate(vMat);
-        //mvMat.concatenate(mMat);
-        // copy perspective and MV matrices to corresponding uniform variables
+
+        double t = System.currentTimeMillis() / 10000.0;
+
+        System.out.println(t);
+
+        Matrix4f mvMat = new Matrix4f().translate(-cameraX,-cameraY,-cameraZ).translate((float)(Math.sin(2*t)*2.0), (float)(Math.sin(3*t)*2.0), (float)(Math.sin(4*t)*2.0));
+
         int mv_loc = gl.glGetUniformLocation(rendering_program, "mv_matrix");
         int proj_loc = gl.glGetUniformLocation(rendering_program, "proj_matrix");
         gl.glUniformMatrix4fv(proj_loc, 1, false, pMat.get(Buffers.newDirectFloatBuffer(16)));
